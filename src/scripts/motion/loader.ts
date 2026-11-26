@@ -3,7 +3,12 @@ import { pauseSmooth } from "./smooth";
 import { still } from "./util";
 
 const KEY = "caflow-loaded";
-const LIMIT = 1200;
+const MINIMUM = 2600;
+const LIMIT = 4000;
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function seen() {
   try {
@@ -59,11 +64,8 @@ export function runLoader(sceneReady: Promise<unknown>) {
     if (fill) fill.style.clipPath = `inset(${100 - value}% 0 0 0)`;
     if (bar) gsap.set(bar, { scaleX: value / 100 });
   };
-  const climb = gsap.to(progress, { value: 86, duration: LIMIT / 1000, ease: "power2.out", onUpdate: paint });
-  const ready = Promise.race([
-    Promise.all([document.fonts.ready, sceneReady]),
-    new Promise((resolve) => setTimeout(resolve, LIMIT)),
-  ]);
+  const climb = gsap.to(progress, { value: 86, duration: MINIMUM / 1000, ease: "power2.out", onUpdate: paint });
+  const ready = Promise.race([Promise.all([document.fonts.ready, sceneReady, wait(MINIMUM)]), wait(LIMIT)]);
   return ready.then(
     () =>
       new Promise<void>((resolve) => {
@@ -73,14 +75,14 @@ export function runLoader(sceneReady: Promise<unknown>) {
           .timeline({
             onComplete: () => root.remove(),
           })
-          .to(progress, { value: 100, duration: 0.25, ease: "power1.out", onUpdate: paint })
-          .to(core, { autoAlpha: 0, y: -20, duration: 0.3, ease: "power2.in" })
+          .to(progress, { value: 100, duration: 0.5, ease: "power1.out", onUpdate: paint })
+          .to(core, { autoAlpha: 0, y: -20, duration: 0.45, ease: "power2.in" }, "+=0.25")
           .add(() => {
             pauseSmooth(false);
             resolve();
           })
-          .to(root.querySelector(".loader-top"), { yPercent: -100, duration: 0.8, ease: "expo.inOut" }, "<")
-          .to(root.querySelector(".loader-bottom"), { yPercent: 100, duration: 0.8, ease: "expo.inOut" }, "<");
+          .to(root.querySelector(".loader-top"), { yPercent: -100, duration: 1.1, ease: "expo.inOut" }, "<")
+          .to(root.querySelector(".loader-bottom"), { yPercent: 100, duration: 1.1, ease: "expo.inOut" }, "<");
       }),
   );
 }
