@@ -1,0 +1,11 @@
+---
+import Base from "../layouts/Base.astro";
+import { COPY } from "../copy";
+---
+<Base title={`${COPY.en.notFound.h1} · CaFlow`} description={COPY.en.description} lang="en">
+  <main class="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-4 px-4 text-center">
+    <h1 class="poster text-5xl">{COPY.en.notFound.h1}</h1>
+    <p lang="vi" class="text-ash">{COPY.vi.notFound.h1}</p>
+    <a href="/" class="btn btn-ember">{COPY.en.notFound.back}</a>
+  </main>
+</Base>

@@ -1,0 +1,48 @@
+---
+import "../styles/global.css";
+import antonLatin from "@fontsource/anton/files/anton-latin-400-normal.woff2?url";
+import antonVietnamese from "@fontsource/anton/files/anton-vietnamese-400-normal.woff2?url";
+
+interface Props {
+  title: string;
+  description: string;
+  lang: "en" | "vi";
+}
+
+const { title, description, lang } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const en = new URL("/", Astro.site);
+const vi = new URL("/vi/", Astro.site);
+---
+<!doctype html>
+<html lang={lang} data-type="software">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="preload" href={antonLatin} as="font" type="font/woff2" crossorigin />
+    {lang === "vi" && <link rel="preload" href={antonVietnamese} as="font" type="font/woff2" crossorigin />}
+    <meta name="description" content={description} />
+    <meta name="page-type" content="software" />
+    <meta name="site-kind" content="software" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={en} />
+    <link rel="alternate" hreflang="vi" href={vi} />
+    <link rel="alternate" hreflang="x-default" href={en} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={lang === "vi" ? "vi_VN" : "en_US"} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL("/share.png", Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="min-h-dvh">
+    <slot />
+    <div class="grain" aria-hidden="true"></div>
+  </body>
+</html>

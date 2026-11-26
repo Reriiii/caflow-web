@@ -1,0 +1,36 @@
+---
+import Device from "./Device.astro";
+
+interface Props {
+  phone: { label: string; title: string; week: string; empty: string; filled: string; booked: string };
+  filled: number;
+  total: number;
+  plan: { cap: number; people: string[] }[][];
+  days: string[];
+  size?: string;
+}
+
+const { size = "", phone, filled, total, plan, days } = Astro.props;
+---
+<Device label={phone.label} class={size}>
+  <div class="px-5 pt-5">
+    <p class="text-[11px] font-semibold text-neutral-500">{phone.week}</p>
+    <p class="font-display text-[22px] font-semibold leading-tight">{phone.title}</p>
+  </div>
+  <div class="mx-4 mt-4 rounded-2xl bg-neutral-100 p-3">
+    <p class="text-[11.5px] font-semibold tabular-nums" data-shift-filled data-template={phone.filled} data-total={total}>{phone.filled.replace("{n}", String(filled)).replace("{total}", String(total))}</p>
+    <div class="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200">
+      <span class="block h-full w-full origin-left rounded-full bg-persimmon" style={`transform:scaleX(${filled / total})`} data-shift-bar></span>
+    </div>
+  </div>
+  <ul class="mx-4 mt-3 space-y-2" data-shift-list data-booked={phone.booked}></ul>
+  <p class="mx-6 mt-6 text-center text-[12px] leading-snug text-neutral-500" data-shift-empty>{phone.empty}</p>
+  <div class="absolute inset-x-4 bottom-5 rounded-2xl bg-neutral-100 p-3">
+    <div class="grid grid-cols-3 gap-1.5">
+      {days.map((day) => <span class="text-center text-[10px] font-semibold text-neutral-500">{day}</span>)}
+      {plan.map((row, r) => row.map((cell, c) => (
+        <span class:list={["mini-cell h-6 rounded-lg border", cell.people.length >= cell.cap ? "is-full" : "is-open"]} data-mini-key={`${c}-${r}`} style={`grid-row:${r + 2};grid-column:${c + 1}`}></span>
+      )))}
+    </div>
+  </div>
+</Device>

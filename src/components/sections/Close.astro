@@ -1,0 +1,112 @@
+---
+import QRCode from "qrcode";
+import { CONTACT, type Copy } from "../../copy";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+const zaloQr = QRCode.create(CONTACT.zaloHref, { errorCorrectionLevel: "M" });
+const qrSize = zaloQr.modules.size;
+const qrCells = Array.from({ length: qrSize * qrSize }, (_, index) => ({ x: index % qrSize, y: Math.floor(index / qrSize) })).filter((cell) => zaloQr.modules.get(cell.x, cell.y));
+const glyph = {
+  chat: "M4 5h16v11H9l-5 4z",
+  phone: "M5 3h4l2 5-3 2a12 12 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2A18 18 0 0 1 3 5a2 2 0 0 1 2-2z",
+  mail: "M3 6h18v12H3zM3 7l9 6 9-6",
+  copy: "M9 9h11v11H9zM5 15H4V4h11v1",
+  arrow: "M7 17 17 7M8 7h9v9",
+  qr: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM18 14h2M14 18v2",
+};
+const small = "btn btn-sm";
+const words = Array.from({ length: 4 }, () => t.contact.marquee);
+---
+<section id="contact" class="relative isolate overflow-hidden pb-16 pt-24 md:pt-32" data-close>
+  <div class="absolute inset-0 -z-10" data-three="embers" aria-hidden="true"></div>
+  <div class="haze pointer-events-none absolute bottom-[-30vw] left-1/2 -z-20 h-[100vw] w-[140vw] -translate-x-1/2" aria-hidden="true"></div>
+  <div class="mx-auto w-[min(1440px,calc(100%-32px))] md:w-[calc(100%-64px)]">
+    <p class="label" data-rise>{t.contact.label}</p>
+  </div>
+  <a href={CONTACT.zaloHref} rel="noopener" class="mt-6 block overflow-hidden py-2" aria-label={t.contact.marquee} data-cursor={t.cursor.open}>
+    <span class="flex w-max will-change-transform" data-marquee aria-hidden="true">
+      {[0, 1].map(() => (
+        <span class="flex shrink-0">
+          {words.map((word) => (
+            <span class="poster flex items-center whitespace-nowrap pr-[4vw] text-[clamp(5rem,17vw,17rem)] leading-[1.05] text-snow transition-colors duration-300 hover:text-ember">
+              {word}
+              <img loading="lazy" src="/seal.svg" alt="" width="160" height="160" class="ml-[4vw] h-[0.6em] w-[0.6em] -rotate-[4deg]" />
+            </span>
+          ))}
+        </span>
+      ))}
+    </span>
+  </a>
+  <div class="mx-auto mt-16 grid w-[min(1440px,calc(100%-32px))] items-center gap-12 md:mt-24 md:w-[calc(100%-64px)] lg:grid-cols-12 lg:gap-6">
+    <div class="min-w-0 lg:col-span-5">
+      <h2 class="font-display text-[clamp(2rem,3.6vw,3.25rem)] font-semibold leading-tight tracking-tight text-balance" data-split>{t.contact.h2}</h2>
+      <p class="mt-5 max-w-[34rem] text-lg leading-relaxed text-pretty text-ash" data-rise>{t.contact.lead}</p>
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap" data-rise>
+        <a class="btn btn-ember w-full sm:w-auto" href={CONTACT.zaloHref} rel="noopener" data-magnetic>{t.cta}</a>
+        <a class="btn btn-ghost w-full sm:w-auto" href={CONTACT.phoneHref} data-magnetic>{t.contact.callButton}</a>
+      </div>
+    </div>
+    <div class="light min-w-0 lg:col-span-6 lg:col-start-7">
+      <div class="[perspective:1600px]" data-contact-card data-copied={t.contact.copied}>
+        <div class="relative [transform-style:preserve-3d]" data-contact-tilt>
+          <div class="relative grid [transform-style:preserve-3d]" data-contact-flip>
+            <div class="relative rounded-[2rem] bg-paper text-ink shadow-[0_50px_140px_-40px_rgba(255,138,92,0.55)] [backface-visibility:hidden] [transform-style:preserve-3d]" data-contact-front>
+              <span class="absolute inset-x-0 top-0 h-2 rounded-t-[2rem] bg-persimmon" aria-hidden="true"></span>
+              <div class="grid [transform-style:preserve-3d] sm:grid-cols-[minmax(0,1fr)_12rem]">
+                <div class="min-w-0 p-7 pt-9 [transform-style:preserve-3d] sm:p-8 sm:pt-10">
+                  <img src="/caflow-logo-horizontal-color.svg" alt="CaFlow" width="112" height="32" loading="lazy" class="h-8 w-auto" />
+                  <p class="mt-6 text-sm font-semibold text-persimmon">{t.contact.person}</p>
+                  <p class="mt-1 font-display text-[2rem] font-semibold leading-tight" translate="no" data-contact-name data-depth="10">{CONTACT.name}</p>
+                  <p class="mt-1 text-neutral-600" data-depth="6">{t.contact.role}</p>
+                  <ul class="mt-6 space-y-1 [transform:translateZ(4px)]" data-depth="5">
+                    <li class="contact-row -mx-2 flex items-center gap-3 rounded-xl px-2 py-1" data-contact-row>
+                      <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-persimmon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.chat} /></svg>
+                      <a class="flex min-h-11 min-w-0 flex-1 items-center gap-2" href={CONTACT.zaloHref} rel="noopener"><span class="text-lg font-semibold tabular-nums">{CONTACT.phone}</span><span class="text-xs text-neutral-500">Zalo</span></a>
+                      <a class="flex h-11 w-11 items-center justify-center rounded-full text-neutral-600 hover:bg-paper hover:text-persimmon" href={CONTACT.zaloHref} rel="noopener" aria-label={`${t.contact.open}: Zalo`}><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.arrow} /></svg></a>
+                    </li>
+                    <li class="contact-row -mx-2 flex items-center gap-3 rounded-xl px-2 py-1" data-contact-row>
+                      <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-persimmon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.phone} /></svg>
+                      <a class="flex min-h-11 min-w-0 flex-1 items-center gap-2" href={CONTACT.phoneHref}><span class="text-lg font-semibold tabular-nums">{CONTACT.phone}</span><span class="text-xs text-neutral-500">{t.contact.call}</span></a>
+                      <button type="button" class="relative flex h-11 w-11 items-center justify-center rounded-full text-neutral-600 hover:bg-paper hover:text-persimmon" data-copy={CONTACT.phone.replaceAll(" ", "")} aria-label={`${t.contact.copy}: ${CONTACT.phone}`}><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.copy} /></svg></button>
+                    </li>
+                    <li class="contact-row -mx-2 flex items-center gap-3 rounded-xl px-2 py-1" data-contact-row>
+                      <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-persimmon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.mail} /></svg>
+                      <a class="flex min-h-11 min-w-0 flex-1 items-center" href={`mailto:${CONTACT.email}`} translate="no"><span class="truncate text-base font-semibold">{CONTACT.email}</span></a>
+                      <button type="button" class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-neutral-600 hover:bg-paper hover:text-persimmon" data-copy={CONTACT.email} aria-label={`${t.contact.copy}: ${CONTACT.email}`}><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.copy} /></svg></button>
+                    </li>
+                  </ul>
+                </div>
+                <div class="relative flex flex-col items-center justify-center gap-5 rounded-b-[2rem] border-t border-dashed border-neutral-300 bg-neutral-50 p-7 [transform-style:preserve-3d] sm:rounded-bl-none sm:rounded-r-[2rem] sm:border-l sm:border-t-0">
+                  <span class="relative flex h-28 w-28 items-center justify-center" data-depth="16">
+                    <span class="absolute inset-0 rounded-full border-2 border-persimmon opacity-0" data-contact-ring aria-hidden="true"></span>
+                    <img src="/seal.svg" alt="" aria-hidden="true" width="96" height="96" loading="lazy" class="h-24 w-24 -rotate-[4deg]" data-contact-seal />
+                  </span>
+                  <button type="button" class={`${small} border border-neutral-300 bg-paper text-ink [transform:translateZ(4px)] hover:border-persimmon hover:text-persimmon`} data-contact-turn="back" data-cursor={t.cursor.flip}>
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.qr} /></svg>
+                    {t.contact.showQr}
+                  </button>
+                </div>
+              </div>
+              <span class="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white opacity-0" data-copy-toast aria-hidden="true">{t.contact.copied}</span>
+            </div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[2rem] bg-paper p-7 text-ink [backface-visibility:hidden] [transform:rotateY(180deg)]" data-contact-back inert aria-hidden="true">
+              <span class="absolute inset-x-0 top-0 h-2 rounded-t-[2rem] bg-persimmon" aria-hidden="true"></span>
+              <a class="block rounded-2xl border border-neutral-200 bg-paper p-3" href={CONTACT.zaloHref} rel="noopener" aria-label={t.contact.scan}>
+                <svg viewBox={`0 0 ${qrSize} ${qrSize}`} class="block h-44 w-44" shape-rendering="crispEdges" aria-hidden="true">
+                  {qrCells.map((cell) => <rect x={cell.x} y={cell.y} width="1" height="1" class="fill-ink" data-qr-cell />)}
+                </svg>
+              </a>
+              <p class="text-center text-sm font-semibold">{t.contact.scan}</p>
+              <button type="button" class={`${small} border border-neutral-300 text-ink hover:border-persimmon hover:text-persimmon`} data-contact-turn="front" data-cursor={t.cursor.flip}>{t.contact.backToCard}</button>
+            </div>
+          </div>
+        </div>
+        <p class="sr-only" aria-live="polite" data-copy-status></p>
+      </div>
+    </div>
+  </div>
+</section>

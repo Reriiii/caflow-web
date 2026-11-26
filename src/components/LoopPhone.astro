@@ -1,0 +1,67 @@
+---
+import Device from "./Device.astro";
+import type { Copy } from "../copy";
+import { photo } from "../photos";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+const phone = t.loop.phone;
+const task = t.loop.tasks[0]!;
+const image = photo(task.photo);
+const fill = (text: string, time: string) => text.replace("{time}", time);
+---
+<Device label={phone.label} class="!w-[min(290px,72vw)]">
+  <div class="absolute inset-x-0 bottom-0 top-8" data-loop-screen="0">
+    <div class="flex items-center justify-between px-5 pt-3">
+      <span class="text-[11px] font-semibold text-neutral-500" data-loop-business>{task.business}</span>
+      <span class="text-[11px] font-semibold text-persimmon">{phone.save}</span>
+    </div>
+    <p class="px-5 pt-1 font-display text-[20px] font-semibold">{phone.create}</p>
+    <div class="mx-4 mt-3 rounded-2xl border border-neutral-200 p-3">
+      <p class="min-h-[2.6em] text-[14px] font-semibold leading-snug"><span data-loop-type>{task.title}</span><span class="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 bg-persimmon" data-loop-caret></span></p>
+    </div>
+    <dl class="mx-4 mt-2 divide-y divide-neutral-200 rounded-2xl border border-neutral-200 text-[12px]">
+      <div class="flex items-center justify-between px-3 py-2.5"><dt class="text-neutral-500">{phone.timeLabel}</dt><dd class="font-semibold tabular-nums" data-loop-time>{task.time}</dd></div>
+      <div class="flex items-center justify-between px-3 py-2.5"><dt class="text-neutral-500">{phone.repeatLabel}</dt><dd class="font-semibold">{phone.repeat}</dd></div>
+      <div class="flex items-center justify-between px-3 py-2.5"><dt class="text-neutral-500">{phone.whoLabel}</dt><dd class="flex items-center gap-1.5 font-semibold"><span class="flex h-5 w-5 items-center justify-center rounded-full bg-persimmon text-[9px] text-white">L</span>{phone.who}</dd></div>
+      <div class="flex items-center justify-between px-3 py-2.5"><dt class="text-neutral-500">{phone.photoRule}</dt><dd><span class="flex h-5 w-9 items-center justify-end rounded-full bg-persimmon p-0.5"><span class="h-4 w-4 rounded-full bg-white"></span></span></dd></div>
+    </dl>
+    <div class="absolute inset-x-4 bottom-6 flex h-11 items-center justify-center rounded-full bg-persimmon text-[13px] font-semibold text-white" data-loop-save>{phone.save}</div>
+  </div>
+
+  <div class="absolute inset-x-0 bottom-0 top-8 bg-black" data-loop-screen="1">
+    <img src={image.src} srcset={image.srcset} sizes="290px" alt="" width={image.width} height={image.height} loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" style={`object-position:${image.position}`} data-loop-photo />
+    <div class="absolute inset-x-3 top-3 rounded-2xl bg-black/55 px-3 py-2 text-white backdrop-blur-md">
+      <p class="text-[13px] font-semibold leading-snug" data-loop-title>{task.title}</p>
+      <p class="mt-0.5 text-[11px] tabular-nums text-white/75" data-loop-due data-template={phone.due}>{fill(phone.due, task.time)}</p>
+    </div>
+    <span class="pointer-events-none absolute inset-[18%] rounded-3xl border-2 border-white/70" aria-hidden="true"></span>
+    <span class="absolute inset-0 bg-white opacity-0" data-loop-flash></span>
+    <div class="absolute inset-x-0 bottom-6 flex flex-col items-center gap-3">
+      <span class="rounded-full bg-green-600 px-3 py-1 text-[11px] font-semibold tabular-nums text-white opacity-0" data-loop-sent data-template={phone.sent}>{fill(phone.sent, task.sent)}</span>
+      <span class="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white/90" data-loop-shutter><span class="h-12 w-12 rounded-full bg-white"></span></span>
+    </div>
+  </div>
+
+  <div class="absolute inset-x-0 bottom-0 top-8 bg-paper" data-loop-screen="2">
+    <div class="relative mx-4 mt-3 aspect-[4/5] overflow-hidden rounded-2xl">
+      <img src={image.src} srcset={image.srcset} sizes="260px" alt="" width={image.width} height={image.height} loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" style={`object-position:${image.position}`} data-loop-photo />
+      <span class="absolute right-3 top-3 flex flex-col items-center gap-1" data-loop-stamp>
+        <span class="relative flex h-[84px] w-[84px] items-center justify-center">
+          <span class="absolute inset-0 rounded-full border-2 border-persimmon opacity-0" data-loop-ring></span>
+          <img loading="lazy" src="/seal.svg" alt="" width="76" height="76" class="h-[76px] w-[76px] -rotate-[4deg]" />
+        </span>
+        <span class="rounded-full bg-persimmon px-2.5 py-0.5 text-[10px] font-semibold text-white">{phone.stamp}</span>
+      </span>
+    </div>
+    <p class="mx-4 mt-3 text-[14px] font-semibold leading-snug" data-loop-title>{task.title}</p>
+    <p class="mx-4 mt-1 text-[11px] tabular-nums text-neutral-500" data-loop-review data-pending={phone.review} data-done={phone.approvedAt}>{phone.review}</p>
+    <div class="absolute inset-x-4 bottom-6 flex gap-2">
+      <span class="flex h-11 flex-1 items-center justify-center rounded-full border border-red-300 text-[12.5px] font-semibold text-red-700">{phone.retake}</span>
+      <span class="flex h-11 flex-1 items-center justify-center rounded-full bg-persimmon text-[12.5px] font-semibold text-white" data-loop-approve>{phone.approve}</span>
+    </div>
+  </div>
+</Device>

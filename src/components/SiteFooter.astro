@@ -1,0 +1,25 @@
+---
+import type { Copy } from "../copy";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+const year = new Date().getFullYear();
+const other = t.lang === "en" ? "vi" : "en";
+const link = "underline underline-offset-2 hover:text-snow";
+---
+<footer class="relative border-t border-line py-8">
+  <div class="mx-auto flex w-[min(1440px,calc(100%-32px))] flex-col gap-6 md:w-[calc(100%-64px)]">
+    <div class="flex flex-wrap items-end justify-between gap-6">
+      <img src="/caflow-logo-horizontal-on-dark.svg" alt="CaFlow" width="400" height="112" loading="lazy" class="h-auto w-[min(260px,50%)]" />
+      <a class="btn btn-ghost btn-sm" href="#top">{t.footer.top}<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg></a>
+    </div>
+    <div class="flex flex-col gap-4 border-t border-line pt-6 text-sm text-ash sm:flex-row sm:items-center sm:justify-between">
+      <p>© {year} {t.footer.rights}</p>
+      <p class="text-xs leading-relaxed text-ash/80">{t.footer.photos}: <a class={link} href="https://commons.wikimedia.org/wiki/User:Shixart1985" rel="noopener">Shixart1985</a> (<a class={link} href="https://creativecommons.org/licenses/by/2.0/" rel="noopener">CC BY 2.0</a>), Blake Richard Verdoorn, Thomas Martinsen, Nathan Dumlao, El Surquillano, Wilfredor (<a class={link} href="https://creativecommons.org/publicdomain/zero/1.0/" rel="noopener">CC0</a>), {t.footer.via}</p>
+      <p>{t.footer.language}: <a class={`inline-flex min-h-11 items-center ${link}`} href={t.nav.otherHref} hreflang={other} lang={other}>{t.nav.other}</a></p>
+    </div>
+  </div>
+</footer>

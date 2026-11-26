@@ -1,0 +1,48 @@
+---
+import Device from "./Device.astro";
+import { photo, thumbs } from "../photos";
+
+interface Post {
+  who: string;
+  initials: string;
+  time: string;
+  text: string;
+  photos: string[];
+  replies: number;
+}
+
+interface Props {
+  phone: { label: string; channel: string; company: string; posts: Post[] };
+  replies: string;
+  reply: string;
+  size?: string;
+}
+
+const { size = "", phone, replies, reply } = Astro.props;
+const count = (n: number) => (n === 1 ? reply : replies.replace("{n}", String(n)));
+---
+<Device label={phone.label} class={size}>
+  <div class="flex items-end justify-between border-b border-neutral-200 px-5 pb-3 pt-4">
+    <p class="font-display text-[19px] font-semibold leading-tight">{phone.channel}</p>
+    <p class="text-[10.5px] text-neutral-500">{phone.company}</p>
+  </div>
+  <div class="space-y-3 px-4 pt-3" data-board-feed>
+    {[...phone.posts].reverse().map((post) => (
+      <article class="rounded-2xl border border-neutral-200 p-3">
+        <div class="flex items-center gap-2">
+          <span class="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-200 text-[11px] font-semibold">{post.initials}</span>
+          <span class="text-[12px] font-semibold">{post.who}</span>
+          <span class="text-[10.5px] tabular-nums text-neutral-500">{post.time}</span>
+        </div>
+        <p class="mt-2 text-[12px] leading-snug">{post.text}</p>
+        <div class:list={["mt-2 grid gap-1.5", post.photos.length > 1 ? "grid-cols-2" : "grid-cols-1"]}>
+          {post.photos.map((id) => {
+            const image = photo(id);
+            return <img loading="lazy" src={thumbs(id).src} srcset={thumbs(id).srcset} sizes={post.photos.length > 1 ? "110px" : "230px"} alt="" width="240" height="160" decoding="async" class:list={["w-full rounded-xl object-cover", post.photos.length > 1 ? "aspect-square" : "aspect-[16/9]"]} style={`object-position:${image.position}`} />;
+          })}
+        </div>
+        <p class="mt-2 text-[11px] font-semibold text-persimmon">{count(post.replies)}</p>
+      </article>
+    ))}
+  </div>
+</Device>

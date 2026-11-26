@@ -1,0 +1,42 @@
+---
+import LoopPhone from "../LoopPhone.astro";
+import type { Copy } from "../../copy";
+import { photo } from "../../photos";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+const tasks = t.loop.tasks.map((task) => ({ ...task, src: photo(task.photo).src, srcset: photo(task.photo).srcset, position: photo(task.photo).position }));
+---
+<section id="loop" class="relative isolate overflow-clip" data-loop data-tasks={JSON.stringify(tasks)} data-approved-time="07:01">
+  <div class="relative flex min-h-[100svh] items-center py-24 md:pb-10 md:pt-24" data-loop-stage>
+    <div class="haze pointer-events-none absolute right-[-20vw] top-1/2 -z-10 h-[80vw] w-[80vw] -translate-y-1/2 opacity-70" aria-hidden="true"></div>
+    <div class="mx-auto grid w-[min(1440px,calc(100%-32px))] items-center gap-12 md:w-[calc(100%-64px)] md:grid-cols-12 md:gap-6">
+      <div class="min-w-0 md:col-span-7 lg:col-span-6">
+        <p class="label" data-rise>{t.loop.label}</p>
+        <h2 class="poster mt-4 text-[clamp(2.75rem,5.2vw,5.5rem)]" data-split>{t.loop.h2}</h2>
+        <div class="mt-5 flex flex-wrap gap-2" role="group" aria-label={t.loop.label}>
+          {tasks.map((task, index) => (
+            <button type="button" class:list={["btn btn-sm border", index === 0 ? "border-ember bg-ember text-night" : "border-line text-snow hover:border-ember"]} aria-pressed={index === 0 ? "true" : "false"} data-loop-pick={index}>{task.business}</button>
+          ))}
+        </div>
+        <ol class="mt-8 md:mt-8">
+          {t.loop.steps.map((step, index) => (
+            <li class:list={["loop-step grid grid-cols-[4.5rem_1fr] gap-x-4 border-t border-line py-4 md:grid-cols-[5.5rem_1fr]", index === 0 && "is-active"]} data-loop-step={index}>
+              <span class="loop-num outline-number text-[clamp(2.75rem,4vw,3.75rem)] leading-none transition-colors duration-300" aria-hidden="true">0{index + 1}</span>
+              <div>
+                <h3 class="loop-title font-display text-xl font-semibold text-ash transition-colors duration-300 md:text-2xl">{step.title}</h3>
+                <p class="mt-1.5 max-w-[30rem] text-[15px] leading-relaxed text-ash">{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div class="flex min-w-0 justify-center md:col-span-5 lg:col-span-6" data-loop-phone>
+        <LoopPhone t={t} />
+      </div>
+    </div>
+  </div>
+</section>

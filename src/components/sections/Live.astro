@@ -1,0 +1,88 @@
+---
+import type { Copy } from "../../copy";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+const live = t.live;
+const total = live.branches.reduce((sum, branch) => sum + branch.total, 0);
+const people = live.branches.reduce((sum, branch) => sum + branch.people, 0);
+const tone: Record<string, string> = {
+  approved: "bg-green-500/15 text-green-300",
+  waiting: "bg-sky-500/15 text-sky-300",
+  late: "bg-ember/15 text-ember",
+  todo: "bg-white/10 text-ash",
+};
+const track = "relative h-1.5 flex-1 rounded-full bg-white/10";
+---
+<section id="live" class="relative isolate overflow-clip" data-live data-behind={live.behind} data-on-track={live.onTrack}>
+  <div class="relative flex min-h-[100svh] items-center py-24 md:py-20" data-live-stage>
+    <div class="mx-auto grid w-[min(1440px,calc(100%-32px))] items-center gap-10 md:w-[calc(100%-64px)] lg:grid-cols-12 lg:gap-6">
+      <div class="min-w-0 lg:col-span-5">
+        <p class="label" data-rise>{live.label}</p>
+        <h2 class="poster mt-5 text-[clamp(3rem,7vw,7rem)]" data-split>{live.h2}</h2>
+        <p class="mt-6 max-w-[30rem] text-lg leading-relaxed text-pretty text-ash" data-rise>{live.lead}</p>
+        <p class="poster mt-10 text-[clamp(5rem,13vw,12rem)] leading-none text-ember tabular-nums [text-shadow:0_0_70px_rgba(255,138,92,0.45)]" aria-hidden="true" data-live-clock>07:00</p>
+        <p class="mt-3 text-sm text-ash" data-rise>{live.hint}</p>
+      </div>
+      <div class="min-w-0 lg:col-span-7 lg:col-start-6">
+        <div class="panel overflow-hidden p-5 md:p-7" data-rise>
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p class="label">{live.company}</p>
+              <p class="mt-2 font-display text-4xl font-semibold tabular-nums md:text-5xl"><span data-live-done-all>0</span><span class="text-ash">/{total}</span></p>
+              <p class="mt-1 text-sm text-ash">{live.stamped}</p>
+            </div>
+            <div class="flex gap-2 text-sm">
+              <span class="rounded-full bg-white/10 px-3 py-1.5 tabular-nums">{live.onShift.replace("{n}", String(people))}</span>
+              <span class="rounded-full bg-ember/15 px-3 py-1.5 font-semibold tabular-nums text-ember opacity-0" data-live-late-all data-template={live.behind}></span>
+            </div>
+          </div>
+          <div class="mt-5 flex items-center gap-3 text-xs tabular-nums text-ash">
+            <span>07:00</span>
+            <div class={track}>
+              <span class="absolute inset-y-0 left-0 w-full origin-left scale-x-0 rounded-full bg-ember" data-live-fill></span>
+              <span class="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ember bg-night shadow-[0_0_14px_rgba(255,138,92,0.8)]" style="left:0%" data-live-knob></span>
+            </div>
+            <span>17:00</span>
+          </div>
+          <ul class="mt-6 space-y-2">
+            {live.branches.map((branch, index) => (
+              <li class="rounded-2xl border border-line bg-white/[0.02]" data-live-branch={index} data-total={branch.total} data-behind-at={branch.behindAt}>
+                <button type="button" class="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 p-4 text-left" aria-expanded="false" aria-controls={`branch-${index}`} data-live-toggle data-cursor={t.cursor.open}>
+                  <span class="min-w-0">
+                    <span class="block truncate font-semibold">{branch.name}</span>
+                    <span class="block text-xs text-ash">{branch.kind} · {live.onShift.replace("{n}", String(branch.people))}</span>
+                  </span>
+                  <span class="flex items-center gap-3">
+                    <span class="font-display text-xl font-semibold tabular-nums"><span data-live-done>0</span><span class="text-ash">/{branch.total}</span></span>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full border border-line transition-transform duration-300" data-live-plus aria-hidden="true"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg></span>
+                  </span>
+                  <span class="col-span-2 flex items-center gap-3">
+                    <span class={track}>
+                      <span class="absolute inset-y-0 left-0 w-full origin-left scale-x-0 rounded-full bg-green-500" data-live-bar></span>
+                    </span>
+                    <span class="chip w-[8.5rem] shrink-0 truncate bg-green-500/15 text-center text-green-300" data-live-state>{live.onTrack}</span>
+                  </span>
+                </button>
+                <div id={`branch-${index}`} class="hidden overflow-hidden" data-live-panel>
+                  <ul class="space-y-1.5 px-4 pb-4">
+                    {branch.tasks.map((task) => (
+                      <li class="flex items-center gap-3 rounded-xl bg-white/[0.04] px-3 py-2.5 text-sm">
+                        <span class="w-12 shrink-0 tabular-nums text-ash">{task.time}</span>
+                        <span class="min-w-0 flex-1 truncate">{task.title}</span>
+                        <span class={`chip shrink-0 ${tone[task.status]}`}>{live.status[task.status]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

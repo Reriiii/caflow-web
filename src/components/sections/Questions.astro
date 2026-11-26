@@ -1,0 +1,37 @@
+---
+import { CONTACT, type Copy } from "../../copy";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+---
+<section id="questions" class="relative isolate overflow-hidden py-24 md:py-32">
+  <div class="mx-auto grid w-[min(1440px,calc(100%-32px))] gap-10 md:w-[calc(100%-64px)] lg:grid-cols-12 lg:gap-6">
+    <div class="lg:col-span-4">
+      <div class="lg:sticky lg:top-28">
+        <p class="label" data-rise>{t.questions.label}</p>
+        <h2 class="poster mt-5 text-[clamp(3rem,6vw,6rem)]" data-split>{t.questions.h2}</h2>
+        <p class="mt-8 text-lg font-semibold">{t.questions.more}</p>
+        <a class="btn btn-ember mt-4" href={CONTACT.zaloHref} rel="noopener" data-magnetic>{t.cta}</a>
+      </div>
+    </div>
+    <div class="border-b border-line lg:col-span-8">
+      {t.questions.items.map((item, index) => (
+        <details class="group border-t border-line" data-faq>
+          <summary class="grid min-h-20 cursor-pointer list-none grid-cols-[auto_1fr_auto] items-center gap-4 py-5 md:gap-8 [&::-webkit-details-marker]:hidden">
+            <span class="outline-number w-14 text-4xl leading-none transition-colors duration-300 group-open:text-ember md:w-20 md:text-6xl" aria-hidden="true">0{index + 1}</span>
+            <span class="font-display text-lg font-semibold leading-snug md:text-2xl">{item.q}</span>
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line transition-[transform,border-color,background-color] duration-300 group-open:rotate-45 group-open:border-ember group-open:bg-ember group-open:text-night" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+            </span>
+          </summary>
+          <div class="overflow-hidden" data-faq-body>
+            <p class="max-w-[42rem] pb-6 pl-[4.5rem] text-base leading-relaxed text-ash md:pl-28 md:text-lg">{item.a}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

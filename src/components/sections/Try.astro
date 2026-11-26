@@ -1,0 +1,207 @@
+---
+import BoardPhone from "../BoardPhone.astro";
+import ShiftPhone from "../ShiftPhone.astro";
+import type { Copy } from "../../copy";
+import { photo, thumbs } from "../../photos";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+const lang = t.lang;
+const demo = t.try;
+const deck = demo.photos.cards;
+const sentLine = (card: (typeof deck)[number]) => demo.photos.sent.replace("{who}", card.who).replace("{sent}", card.sent).replace("{due}", card.due);
+const shiftPlan = [
+  [{ cap: 2, people: ["Lan", "Minh"] }, { cap: 3, people: ["Minh"] }, { cap: 2, people: [] }],
+  [{ cap: 2, people: ["An"] }, { cap: 2, people: ["Lan", "Hà"] }, { cap: 2, people: ["An"] }],
+  [{ cap: 2, people: [] }, { cap: 1, people: [] }, { cap: 3, people: ["Minh", "Hà"] }],
+];
+const placeCount = shiftPlan.flat().reduce((sum, cell) => sum + cell.cap, 0);
+const filledCount = shiftPlan.flat().reduce((sum, cell) => sum + cell.people.length, 0);
+const placesLeft = (cap: number, count: number) => demo.shifts.left.replace("{n}", String(cap - count));
+const boardPool = ["m189498721", "f198740925", "m61713028", "f142209460", "m187311853", "m61714648"].map((id) => ({ src: thumbs(id).src, srcset: thumbs(id).srcset, position: photo(id).position }));
+const workDays = [5, 5, 0, 5.25, 4.5, 5, 0];
+const money = (value: number) => new Intl.NumberFormat(lang === "vi" ? "vi-VN" : "en-US", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(value);
+const receiptTotal = demo.receipts.items.reduce((sum, item) => sum + item.amount, 0);
+const glyph = {
+  check: "M5 12.5 9.5 17 19 7.5",
+  cross: "M6 6l12 12M18 6 6 18",
+};
+const titles = [demo.panels.photos, demo.panels.shifts, demo.panels.board, demo.panels.money];
+const panel = "try-panel relative flex w-[88vw] shrink-0 snap-center flex-col overflow-hidden rounded-[2rem] border border-line bg-coal p-5 md:h-full md:w-[min(82vw,1100px)] md:p-7";
+const head = "flex items-baseline justify-between gap-4";
+const phoneSize = "!w-[min(250px,64vw,calc((100svh-20rem)*0.4737))]";
+---
+<section id="try" class="relative isolate overflow-clip" data-try>
+  <div class="relative flex min-h-[100svh] flex-col justify-center gap-8 py-24 md:h-[100svh] md:gap-6 md:pb-8 md:pt-24" data-try-stage>
+    <div class="mx-auto flex w-[min(1440px,calc(100%-32px))] flex-wrap items-end justify-between gap-4 md:w-[calc(100%-64px)]">
+      <div>
+        <p class="label" data-rise>{demo.label}</p>
+        <h2 class="poster mt-3 text-[clamp(2.75rem,5vw,5rem)]" data-split>{demo.h2}</h2>
+      </div>
+      <div class="flex items-center gap-4">
+        <p class="max-w-[18rem] text-sm text-ash">{demo.hint}</p>
+        <p class="poster text-3xl tabular-nums text-ember" aria-hidden="true"><span data-try-count>01</span><span class="text-ash"> / 04</span></p>
+      </div>
+    </div>
+    <div class="relative md:min-h-0 md:flex-1">
+      <div class="try-rail flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:h-full md:snap-none md:gap-6 md:overflow-visible md:px-8" data-try-track>
+        <article class={panel} aria-label={titles[0]}>
+          <div class={head}><h3 class="font-display text-2xl font-semibold md:text-3xl">{titles[0]}</h3><span class="label">01</span></div>
+          <p class="mt-2 text-sm text-ash">{demo.photos.hint}</p>
+          <div class="mt-4 grid flex-1 items-start gap-6 md:items-center md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div class="relative mx-auto w-full max-w-[300px]" data-deck data-queue={demo.photos.queue} data-msg-approved={demo.photos.approved} data-msg-retaken={demo.photos.retaken}>
+              <div class="flex items-center justify-between text-sm">
+                <span class="font-semibold tabular-nums" data-deck-queue>{demo.photos.queue.replace("{n}", String(deck.length))}</span>
+                <span class="flex gap-1.5" aria-hidden="true">{deck.map(() => <span class="h-2.5 w-2.5 rounded-full bg-white/20" data-deck-dot></span>)}</span>
+              </div>
+              <div class="relative mx-auto mb-8 mt-3 aspect-[4/5] w-full max-w-full md:h-[min(380px,calc(100svh-30rem))] md:w-auto" data-deck-pile data-cursor={t.cursor.drag}>
+                <div class="absolute inset-0 flex flex-col items-center justify-center gap-5 rounded-[1.5rem] border-2 border-dashed border-line p-6 text-center" data-deck-done>
+                  <img src="/seal.svg" alt="" width="72" height="72" loading="lazy" class="h-[72px] w-[72px] -rotate-[4deg]" />
+                  <p class="text-base font-semibold text-pretty">{demo.photos.done}</p>
+                  <button type="button" class="btn btn-ghost btn-sm" data-deck-again>{demo.photos.again}</button>
+                </div>
+                {[...deck].reverse().map((card) => (
+                  <article class="absolute inset-0 flex touch-pan-y select-none flex-col overflow-hidden rounded-[1.5rem] bg-paper text-ink" data-deck-card data-task={card.task}>
+                    <div class="relative min-h-0 flex-1 overflow-hidden">
+                      <img loading="lazy" src={photo(card.photo).src} srcset={photo(card.photo).srcset} sizes="300px" alt="" width={photo(card.photo).width} height={photo(card.photo).height} decoding="async" draggable="false" class="absolute inset-0 h-full w-full object-cover" style={`object-position:${photo(card.photo).position}`} />
+                      <span class="absolute left-3 top-3 rounded-full bg-green-600 px-3 py-1 text-sm font-semibold text-white opacity-0" data-deck-yes aria-hidden="true">{demo.photos.approve}</span>
+                      <span class="absolute right-3 top-3 rounded-full bg-red-600 px-3 py-1 text-sm font-semibold text-white opacity-0" data-deck-no aria-hidden="true">{demo.photos.retake}</span>
+                      <span class="absolute right-3 top-3 flex flex-col items-center gap-1 opacity-0" data-deck-stamp aria-hidden="true">
+                        <img loading="lazy" src="/seal.svg" alt="" width="70" height="70" class="h-[70px] w-[70px]" />
+                        <span class="rounded-full bg-persimmon px-3 py-1 text-xs font-semibold text-white">{demo.photos.seal}</span>
+                      </span>
+                      <span class="absolute inset-x-3 bottom-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800 opacity-0" data-deck-tag aria-hidden="true">{demo.photos.retakeTag}</span>
+                    </div>
+                    <div class="border-t border-neutral-200 px-4 py-3">
+                      <p class="truncate font-display text-base font-semibold">{card.task}</p>
+                      <p class="mt-0.5 text-xs tabular-nums text-neutral-500">{sentLine(card)}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div class="flex items-center gap-3">
+                <button type="button" class="btn btn-sm flex-1 border border-red-400/50 text-red-300" data-deck-act="no"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d={glyph.cross} /></svg>{demo.photos.retake}</button>
+                <button type="button" class="btn btn-ember btn-sm flex-1" data-deck-act="yes"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={glyph.check} /></svg>{demo.photos.approve}</button>
+              </div>
+              <p class="mt-3 min-h-[1.5rem] text-center text-sm text-ash" aria-live="polite" data-deck-status></p>
+            </div>
+            <div class="hidden md:block">
+              <p class="poster text-[clamp(4rem,9vw,9rem)] leading-[0.9] text-white/[0.06]" aria-hidden="true">{demo.photos.approve}<br />{demo.photos.retake}</p>
+            </div>
+          </div>
+        </article>
+
+        <article class={panel} aria-label={titles[1]}>
+          <div class={head}><h3 class="font-display text-2xl font-semibold md:text-3xl">{titles[1]}</h3><span class="label">02</span></div>
+          <p class="mt-2 text-sm text-ash">{demo.shifts.lead}</p>
+          <div class="mt-4 grid flex-1 items-start gap-6 md:items-center md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+            <div class="min-w-0" data-shifts data-you={demo.shifts.you} data-open={demo.shifts.open} data-full={demo.shifts.full} data-left={demo.shifts.left} data-msg-booked={demo.shifts.booked} data-msg-dropped={demo.shifts.dropped} data-msg-refused={demo.shifts.refused}>
+              <table class="w-full table-fixed border-separate border-spacing-1.5 text-sm">
+                <thead>
+                  <tr>
+                    <td class="w-[30%]"></td>
+                    {demo.shifts.days.map((day) => <th scope="col" class="pb-1 text-left font-semibold text-ash">{day}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {shiftPlan.map((row, r) => (
+                    <tr>
+                      <th scope="row" class="pr-1 text-left align-middle text-[13px] font-medium leading-tight text-ash">{demo.shifts.shifts[r]}</th>
+                      {row.map((cell, c) => {
+                        const fullNow = cell.people.length >= cell.cap;
+                        return (
+                          <td>
+                            <button type="button" class:list={["shift-cell", fullNow && "is-full"]} data-cap={cell.cap} data-people={JSON.stringify(cell.people)} data-shift-day={demo.shifts.days[c]} data-shift-name={demo.shifts.shifts[r]} data-key={`${c}-${r}`} aria-pressed="false" data-cursor={t.cursor.tap}>
+                              <span class="sr-only">{demo.shifts.days[c]}, {demo.shifts.shifts[r]}: </span>
+                              <span class="block w-full truncate font-semibold" data-names>{cell.people.length ? cell.people.join(", ") : demo.shifts.open}</span>
+                              <span class="block text-xs tabular-nums" data-left>{fullNow ? demo.shifts.full : placesLeft(cell.cap, cell.people.length)}</span>
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p class="mt-3 min-h-[3rem] text-base text-snow" aria-live="polite" data-status></p>
+            </div>
+            <div class="hidden justify-center md:flex">
+              <ShiftPhone phone={demo.shifts.phone} filled={filledCount} total={placeCount} plan={shiftPlan} days={demo.shifts.days} size={phoneSize} />
+            </div>
+          </div>
+        </article>
+
+        <article class={panel} aria-label={titles[2]}>
+          <div class={head}><h3 class="font-display text-2xl font-semibold md:text-3xl">{titles[2]}</h3><span class="label">03</span></div>
+          <p class="mt-2 text-sm text-ash">{demo.board.lead}</p>
+          <div class="mt-4 grid flex-1 items-start gap-6 md:items-center md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+            <div class="min-w-0" data-compose data-msg-posted={demo.board.posted} data-replies={demo.board.replies} data-reply={demo.board.reply} data-photos={demo.board.photos} data-photo={demo.board.photo} data-text={demo.board.text} data-you={demo.board.phone.you} data-now={demo.board.phone.now} data-pool={JSON.stringify(boardPool)}>
+              <div class="rounded-3xl border border-line bg-white/[0.03] p-4" data-draft>
+                <p class="text-[15px] text-snow">{demo.board.text}</p>
+                <div class="mt-3 flex min-h-16 gap-2" data-grid>
+                  {boardPool.slice(0, 2).map((item, index) => (
+                    <span class="tile relative block h-16 w-16 overflow-hidden rounded-xl bg-smoke" data-tile={index} aria-hidden="true">
+                      <img loading="lazy" src={item.src} srcset={item.srcset} sizes="64px" alt="" width="64" height="64" decoding="async" class="h-full w-full object-cover" style={`object-position:${item.position}`} />
+                    </span>
+                  ))}
+                </div>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button type="button" class="btn btn-ghost btn-sm" data-add><span aria-hidden="true">+</span>{demo.board.add}</button>
+                  <button type="button" class="btn btn-ghost btn-sm" data-remove><span aria-hidden="true">−</span>{demo.board.remove}</button>
+                  <button type="button" class="btn btn-ember btn-sm" data-post>{demo.board.post}</button>
+                </div>
+              </div>
+              <p class="mt-3 min-h-[1.5rem] text-base text-snow" aria-live="polite" data-status></p>
+            </div>
+            <div class="hidden justify-center md:flex">
+              <BoardPhone phone={demo.board.phone} replies={demo.board.replies} reply={demo.board.reply} size={phoneSize} />
+            </div>
+          </div>
+        </article>
+
+        <article class={panel} aria-label={titles[3]}>
+          <div class={head}><h3 class="font-display text-2xl font-semibold md:text-3xl">{titles[3]}</h3><span class="label">04</span></div>
+          <div class="mt-4 grid flex-1 gap-4 md:grid-cols-2 md:items-stretch">
+            <div class="flex flex-col rounded-3xl border border-line bg-white/[0.03] p-5" data-hours data-format={demo.hours.format} data-locale={lang === "vi" ? "vi-VN" : "en-US"}>
+              <p class="label">{demo.hours.title}</p>
+              <dl class="mt-4 grid grid-cols-2 gap-4">
+                <div><dt class="text-sm text-ash">{demo.hours.hours}</dt><dd class="mt-1 font-display text-2xl font-semibold tabular-nums md:text-3xl" data-hours-value data-to="24.75">{demo.hours.format.replace("{h}", "24").replace("{m}", "45")}</dd></div>
+                <div><dt class="text-sm text-ash">{demo.hours.pay}</dt><dd class="mt-1 font-display text-2xl font-semibold tabular-nums text-ember md:text-3xl" data-pay-value data-to="618750">{money(618750)}</dd></div>
+              </dl>
+              <div class="mt-auto flex h-32 items-end gap-2 pt-6" aria-hidden="true">
+                {workDays.map((value, index) => (
+                  <div class="flex flex-1 flex-col items-center gap-2">
+                    <div class="flex h-24 w-full items-end overflow-hidden rounded-lg bg-white/5">
+                      <span class:list={["block w-full origin-bottom rounded-lg", value ? "bg-ember shadow-[0_0_16px_rgba(255,138,92,0.5)]" : "bg-transparent"]} style={`height:${(value / 5.25) * 100}%`} data-hours-bar></span>
+                    </div>
+                    <span class="text-xs text-ash">{demo.hours.days[index]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div class="flex flex-col rounded-3xl border border-line bg-white/[0.03] p-5" data-receipts data-open={demo.receipts.open} data-close={demo.receipts.close}>
+              <div class="flex items-start justify-between gap-4">
+                <p class="label">{demo.receipts.title}</p>
+                <div class="text-right"><p class="text-sm text-ash">{demo.receipts.total}</p><p class="font-display text-2xl font-semibold tabular-nums">{money(receiptTotal)}</p></div>
+              </div>
+              <div class="relative mt-4 flex h-36 flex-1 items-center" data-receipt-row>
+                {demo.receipts.items.map((item) => (
+                  <div class="absolute left-0 top-2 flex h-32 w-[31%] min-w-[6.5rem] flex-col justify-between rounded-xl bg-paper p-3 text-ink" data-receipt>
+                    <span class="w-fit rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-700">{item.kind}</span>
+                    <span class="space-y-1.5" aria-hidden="true"><span class="block h-1.5 w-4/5 rounded bg-neutral-200"></span><span class="block h-1.5 w-3/5 rounded bg-neutral-200"></span></span>
+                    <span class="text-sm font-semibold tabular-nums">{money(item.amount)}</span>
+                  </div>
+                ))}
+              </div>
+              <button type="button" class="btn btn-ghost btn-sm mt-4 self-start" data-receipt-toggle aria-expanded="true">{demo.receipts.open}</button>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="mx-auto mt-4 hidden h-px w-[min(1440px,calc(100%-64px))] bg-line md:block" aria-hidden="true"><div class="h-px w-full origin-left scale-x-0 bg-ember shadow-[0_0_10px_rgba(255,138,92,0.8)]" data-try-progress></div></div>
+    </div>
+  </div>
+</section>

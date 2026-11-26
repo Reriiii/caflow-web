@@ -1,0 +1,109 @@
+---
+import type { Copy } from "../../copy";
+import { photo } from "../../photos";
+
+interface Props {
+  t: Copy;
+}
+
+const { t } = Astro.props;
+const trust = t.trust;
+const glyph = {
+  camera: "M4 7h3l2-3h6l2 3h3v12H4zM12 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+  pin: "M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  wifi: "M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01",
+  check: "M5 12.5 9.5 17 19 7.5",
+};
+const flagTone: Record<string, string> = {
+  late: "bg-ember/15 text-ember",
+  early: "bg-amber-400/15 text-amber-300",
+  ok: "bg-green-500/15 text-green-300",
+};
+const aiPhoto = photo("f142209460");
+const card = "panel panel-glow relative flex min-h-[26rem] flex-col overflow-hidden p-6 md:p-8";
+const number = "outline-number pointer-events-none absolute -right-2 -top-6 text-[9rem] leading-none opacity-60 md:text-[11rem]";
+const title = "relative max-w-[22rem] font-display text-2xl font-semibold leading-tight";
+const body = "relative mt-3 max-w-[30rem] text-base leading-relaxed text-ash";
+---
+<section id="trust" class="relative isolate overflow-hidden py-24 md:py-32">
+  <div class="mx-auto w-[min(1440px,calc(100%-32px))] md:w-[calc(100%-64px)]">
+    <div class="grid gap-6 md:grid-cols-12 md:items-end">
+      <div class="md:col-span-8">
+        <p class="label" data-rise>{trust.label}</p>
+        <h2 class="poster mt-5 text-[clamp(3rem,8vw,8rem)]" data-split>{trust.h2}</h2>
+      </div>
+    </div>
+    <div class="mt-12 grid gap-4 md:mt-16 md:grid-cols-2">
+      <article class={card} data-rise data-checkin data-action={trust.checkin.action} data-undo={trust.checkin.undo}>
+        <span class={number} aria-hidden="true">01</span>
+        <h3 class={title}>{trust.items[0]!.title}</h3>
+        <p class={body}>{trust.items[0]!.body}</p>
+        <div class="relative mt-auto pt-8">
+          <p class="text-sm text-ash">{trust.checkin.shift}</p>
+          <div class="mt-4 flex items-center gap-6">
+            <button type="button" class="checkin-btn flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-ember p-3 text-center text-sm font-semibold leading-tight text-night shadow-[0_0_50px_rgba(255,138,92,0.5)]" data-checkin-button aria-pressed="false" data-cursor={t.cursor.tap}><span data-checkin-label>{trust.checkin.action}</span></button>
+            <ul class="space-y-3 text-sm">
+              {[[glyph.camera, trust.checkin.photo], [glyph.pin, trust.checkin.place], [glyph.wifi, trust.checkin.wifi]].map(([path, label]) => (
+                <li class="checkin-row flex items-center gap-2.5 text-ash/60" data-checkin-row>
+                  <span class="checkin-tick flex h-6 w-6 items-center justify-center rounded-full border border-line" aria-hidden="true"><svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d={glyph.check} /></svg></span>
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={path} /></svg>{label}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p class="mt-4 min-h-[1.5rem] font-semibold tabular-nums text-green-400 opacity-0" aria-live="polite" data-checkin-time>{trust.checkin.time}</p>
+        </div>
+        <span class="pointer-events-none absolute inset-0 bg-white opacity-0" data-checkin-flash aria-hidden="true"></span>
+      </article>
+
+      <article class={card} data-rise data-flags>
+        <span class={number} aria-hidden="true">02</span>
+        <h3 class={title}>{trust.items[1]!.title}</h3>
+        <p class={body}>{trust.items[1]!.body}</p>
+        <ul class="relative mt-auto space-y-2 pt-8">
+          {trust.flags.map((flag) => (
+            <li class="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3 text-sm" data-flag>
+              <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">{flag.who.slice(0, 1)}</span>
+              <span class="flex-1 font-semibold">{flag.who}</span>
+              <span class="tabular-nums text-ash">{flag.shift}</span>
+              <span class={`chip ${flagTone[flag.tone]}`}>{flag.text}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article class={card} data-rise data-edit>
+        <span class={number} aria-hidden="true">03</span>
+        <h3 class={title}>{trust.items[2]!.title}</h3>
+        <p class={body}>{trust.items[2]!.body}</p>
+        <div class="relative mt-auto pt-8">
+          <div class="rounded-2xl border border-line bg-white/[0.03] p-5">
+            <p class="label">{trust.edit.label}</p>
+            <p class="mt-3 flex items-baseline gap-4 font-display text-4xl font-semibold tabular-nums">
+              <span class="relative text-ash">{trust.edit.from}<span class="absolute left-[-4%] top-1/2 h-[3px] w-[108%] origin-left bg-ember" data-edit-strike></span></span>
+              <svg viewBox="0 0 24 24" class="h-6 w-6 self-center text-ash" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              <span class="text-snow" data-edit-to>{trust.edit.to}</span>
+            </p>
+            <p class="mt-3 text-sm text-snow/85" data-edit-reason>{trust.edit.reason}</p>
+            <p class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-xs text-ash"><span>{trust.edit.by}</span><span class="text-green-300">{trust.edit.told}</span></p>
+          </div>
+        </div>
+      </article>
+
+      <article class={card} data-rise data-ai>
+        <span class={number} aria-hidden="true">04</span>
+        <h3 class={title}>{trust.items[3]!.title}</h3>
+        <p class={body}>{trust.items[3]!.body}</p>
+        <div class="relative mt-auto grid gap-4 pt-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div class="relative aspect-[16/10] overflow-hidden rounded-2xl" aria-hidden="true">
+            <img src={aiPhoto.src} srcset={aiPhoto.srcset} sizes="(min-width: 768px) 360px, 90vw" alt="" width={aiPhoto.width} height={aiPhoto.height} loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" style={`object-position:${aiPhoto.position}`} />
+            <span class="absolute inset-x-0 top-0 h-0.5 bg-ember opacity-0 shadow-[0_0_18px_4px_rgba(255,138,92,0.9)]" data-ai-line></span>
+            <span class="absolute right-3 top-3 opacity-0" data-ai-stamp><img src="/seal.svg" alt="" width="52" height="52" loading="lazy" class="h-[52px] w-[52px] -rotate-[4deg]" /></span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm self-end" data-ai-again>{trust.ai.again}</button>
+          <p class="flex min-h-[3rem] items-start gap-2 font-semibold sm:col-span-2" aria-live="polite" data-ai-status data-scanning={trust.ai.scanning} data-match={trust.ai.match}></p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

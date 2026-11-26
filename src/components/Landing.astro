@@ -1,0 +1,36 @@
+---
+import SiteFooter from "./SiteFooter.astro";
+import SiteNav from "./SiteNav.astro";
+import Close from "./sections/Close.astro";
+import Hero from "./sections/Hero.astro";
+import Live from "./sections/Live.astro";
+import Loop from "./sections/Loop.astro";
+import Problem from "./sections/Problem.astro";
+import Questions from "./sections/Questions.astro";
+import Trust from "./sections/Trust.astro";
+import Try from "./sections/Try.astro";
+import { COPY, type Lang } from "../copy";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = COPY[lang];
+---
+<SiteNav t={t} />
+<main id="main" data-loader-label={t.loader.label}>
+  <Hero t={t} />
+  <Problem t={t} />
+  <Loop t={t} />
+  <Live t={t} />
+  <Trust t={t} />
+  <Try t={t} />
+  <Questions t={t} />
+  <Close t={t} />
+</main>
+<SiteFooter t={t} />
+
+<script>
+  import "../scripts/landing";
+</script>
